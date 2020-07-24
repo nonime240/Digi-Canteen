@@ -9,12 +9,9 @@
 
 FirebaseData RFID;
 
-FirehaseJson json;
+FirebaseJson json;
 
-void printResult(RFID &data);
-
-
-String path = "/test/int";
+String path;
 
 void setup() {
   Serial.begin(115200);
@@ -35,15 +32,33 @@ void setup() {
 
 }
 
+String n = "user";
+int i =0; 
+
 void loop() {
   
-  if (Firebse.getInt(RFID, path)){
-    if (RFID.dataType() == "int"){
-      Serial.println(RFID.intData());
-    }
-    
-  } else {
+//  if (Firebase.getInt(RFID, path)){
+//    Serial.println(RFID.intData());
+//  } 
+//  else{
+//    Serial.println(RFID.errorReason());
+//  }
+//  delay(5000);
+//  
+  path = "/test/int/" + i;
+  RFID.pushName("nama");
+  Firebase.pushString(RFID, path, n);
+  delay(2000);
+
+  Serial.print(RFID.pushName());
+  Serial.print(" : ");
+  path = path + "/" + RFID.pushName();
+  if (Firebase.getString(RFID, path)){
+    Serial.println(RFID.stringData());
+  } 
+  else{
     Serial.println(RFID.errorReason());
   }
-
+  delay(5000);
+  i++;
 }

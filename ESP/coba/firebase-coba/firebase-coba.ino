@@ -13,6 +13,9 @@ FirehaseJson json;
 
 void printResult(RFID &data);
 
+
+String path = "/test/int";
+
 void setup() {
   Serial.begin(115200);
 
@@ -33,6 +36,14 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  
+  if (Firebse.getInt(RFID, path)){
+    if (RFID.dataType() == "int"){
+      Serial.println(RFID.intData());
+    }
+    
+  } else {
+    Serial.println(RFID.errorReason());
+  }
 
 }

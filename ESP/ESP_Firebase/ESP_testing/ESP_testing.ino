@@ -66,8 +66,8 @@ void loop() {
     Serial.println("\n");
     
     //upload the ID to Firebase real-time DB
-    path = "/Tb_rfid/" + rfidID;
-    Firebase.pushString(path, "User");
+    path = "/Tb_rfid/" + rfidID + "/nama";
+    Firebase.setString(path, "User");
     if (Firebase.failed()){
       Serial.print("setting RFID ID failed : ");
       Serial.println(Firebase.error());

@@ -1,5 +1,7 @@
 #include "FirebaseESP8266.h"
 #include <ESP8266WiFi.h>
+#include <RFID.h>
+#include <SPI.h>
 
 #define FIREBASE_HOST "nodemcu-test-6a3fc.firebaseio.com"
 #define FIREBASE_AUTH "1gFcr16y3dI3CHinRhshjLDLUoZpUTBkUhuPmX0c"
@@ -7,14 +9,19 @@
 #define WIFI_SSID "limanto"
 #define WIFI_PASS "220422101509"
 
+#define SDA 2
+#define RST 0
+RFID RC522(SDA, RST);
+
 FirebaseData RFID;
 
 FirebaseJson json;
 
-String path;
-
 void setup() {
   Serial.begin(115200);
+
+  SPI.begin();
+  RC522.init();
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   Serial.print("\n connecting ");
@@ -32,33 +39,38 @@ void setup() {
 
 }
 
-String n = "user";
-int i =0; 
-
 void loop() {
-  
-//  if (Firebase.getInt(RFID, path)){
-//    Serial.println(RFID.intData());
-//  } 
-//  else{
-//    Serial.println(RFID.errorReason());
-//  }
-//  delay(5000);
-//  
-  path = "/test/int/" + i;
-  RFID.pushName("nama");
-  Firebase.pushString(RFID, path, n);
-  delay(2000);
+  String path = "/Tb_rfid";
 
-  Serial.print(RFID.pushName());
-  Serial.print(" : ");
-  path = path + "/" + RFID.pushName();
-  if (Firebase.getString(RFID, path)){
-    Serial.println(RFID.stringData());
-  } 
-  else{
-    Serial.println(RFID.errorReason());
+  if (RC522.isCard())
+  {
+    //prepare string for card ID
+    String rfidId[5], rfidID;
+    
+    //reads the ID
+    RC522.readCardSerial();
+    Serial.print("Card detected : ");
+    
+    //save the ID on an array 
+    for(int i=0;i<6;i++)
+    {
+      rfidId[i] = RC522.serNum[i];
+    } 
+
+    //combine the array and print card's ID
+    rfidID = rfidId[0] + rfidId[1] + rfidId[2] + rfidId[3] + rfidId[4];
+    Serial.println(rfidID);
+    Serial.println("\n");
+    
+    //upload the ID to Firebase real-time DB
+    path = "/Tb_rfid/" + rfidID + "/nama";
+    if (!Firebase.setString(RFID, path, "User")){
+      Serial.print("setting RFID ID failed : ");
+      Serial.println(RFID.fileTransferError());
+    }
+
+    
   }
-  delay(5000);
-  i++;
+  delay(500);
+  
 }
